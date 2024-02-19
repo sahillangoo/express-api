@@ -1,28 +1,28 @@
-// import http from 'http';
+/*
+ * Intro: This is the Entry Point to Node Express API.
+ * Database & ORM: Postgress & Prisma
+ * Auth: JWT & Bcrypt
+ */
 
-// const server = http.createServer(async (req, res) => {
-// 	if (req.url === '/' && req.method === 'GET') {
-// 		res.writeHead(200, { 'Content-Type': 'application/json' });
-// 		res.write(JSON.stringify({ message: 'hello world!' }));
-// 		console.log('hello world!');
-
-// 		res.end();
-// 		return;
-// 	}
-
-// 	res.writeHead(404, { 'Content-Type': 'application/json' });
-// 	res.end(JSON.stringify({ message: 'nope' }));
-// });
-
-// const PORT = process.env.PORT || 3000;
-
-// server.listen(PORT, () => {
-// 	console.log(`server on ${PORT}`);
-// });
 import * as dotenv from 'dotenv';
-dotenv.config();
 import app from './server';
+import config from './config';
 
-app.listen(3001, () => {
-	console.log('Server listening on http://localhost:3001');
+dotenv.config();
+
+// Validate environment variables
+if (!process.env.PORT) {
+  console.error('Missing environment variable: PORT');
+  process.exit(1);
+}
+
+const port = config.PORT;
+
+app.listen(port, (err?: Error) => {
+  if (err) {
+    console.error('Failed to start server:', err);
+    process.exit(1);
+  }
+
+  console.info(`Server started listening on ${port}\n Visit http://localhost:${port}`);
 });

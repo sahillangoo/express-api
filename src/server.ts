@@ -1,48 +1,78 @@
-// Import necessary modules
 import cors from 'cors';
 import express from 'express';
 import morgan from 'morgan';
+import helmet from 'helmet';
 import { createNewUser, signin } from './handlers/user';
 import { protect } from './modules/auth';
 import router from './router';
 
-// Create an express application
 const app = express();
 
-// Use cors middleware to enable Cross Origin Resource Sharing
+// Use CORS middleware to enable CORS (Cross-Origin Resource Sharing)
 app.use(cors());
 
-// Use morgan middleware for logging HTTP requests
-app.use(morgan('dev')); // dev | combined | common | short | tiny
-
-// Use express.json middleware to parse incoming requests with JSON payloads
+// Use Helmet middleware to secure Express apps by setting various HTTP headers
+app.use(
+  helmet({
+    // Set Content Security Policy for preventing XSS and data injection attacks
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"], // Default policy for loading content such as JavaScript, Images, CSS, Font's, AJAX requests etc.
+        scriptSrc: ["'self'", "'unsafe-inline'"], // Defines valid sources of JavaScript
+        styleSrc: ["'self'", "'unsafe-inline'"], // Defines valid sources of stylesheets
+        imgSrc: ["'self'", 'data:'], // Defines valid sources of images
+        connectSrc: ["'self'"], // Applies to XMLHttpRequest (AJAX), WebSocket or EventSource. If not allowed the browser emulates a 400 HTTP status code
+        fontSrc: ["'self'"], // Defines valid sources of fonts
+        objectSrc: ["'none'"], // Defines valid sources of plugins, eg <object>, <embed> or <applet>.
+        mediaSrc: ["'self'"], // Defines valid sources of audio and video, eg HTML5 <audio>, <video> elements
+        frameSrc: ["'none'"], // Defines valid sources for loading frames
+      },
+    },
+    // Disables DNS prefetching
+    dnsPrefetchControl: false,
+    // Prevents clickjacking by setting the X-Frame-Options header
+    frameguard: {
+      action: 'deny',
+    },
+    // Removes the X-Powered-By header to make it slightly harder for attackers to see what potentially-vulnerable technology stack is being used
+    hidePoweredBy: true,
+    // Implements HTTP Strict Transport Security (HSTS) to keep user sessions secure
+    hsts: {
+      maxAge: 60 * 60 * 24 * 365, // Must be at least 1 year to be approved by Google's HSTS preload service
+      includeSubDomains: true, // If enabled, the rule applies to all of the site's subdomains as well
+      preload: true,
+    },
+    // Prevents Internet Explorer from executing downloads in site's context
+    ieNoOpen: true,
+    // Prevents browsers from trying to MIME-sniff the content-type
+    noSniff: true,
+    // Helps to protect against XSS attacks
+    xssFilter: true,
+  })
+);
+app.use(morgan(process.env.NODE_ENV === 'development' ? 'dev' : 'short'));
 app.use(express.json());
-
-// Use express.urlencoded middleware to parse incoming requests with URL-encoded payloads
 app.use(express.urlencoded({ extended: true }));
 
-// Define a GET route for the root path
 app.get('/', (req, res, next) => {
-	res.status(200);
-	res.json({ mes: 'World!' });
-	console.log('hello console');
-	next();
+  res.status(200).json({ mes: 'Hello World!' });
+  next();
 });
 
-// Use the protect middleware and router for all routes starting with /api
 app.use('/api', protect, router);
 
-// Define a POST route for creating new users
-app.post('/user', createNewUser);
+// Group user related routes
+const userRouter = express.Router();
+userRouter.post('/user', createNewUser);
+userRouter.post('/signin', signin);
+app.use('/user', userRouter);
 
-// Define a POST route for signing in users
-app.post('/signin', signin);
-
-// Error handling middleware
+// Centralized error handling
 app.use((err, req, res, next) => {
-	console.log(err);
-	res.json({ message: `had an error: ${err.message}` });
+  console.error(err);
+  const status = err.status || 500;
+  const message = err.message || 'Internal Server Error';
+  res.status(status).json({ message });
 });
 
-// Export the express application
 export default app;

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { body } from 'express-validator';
+import { body, param } from 'express-validator';
 import {
   createProduct,
   deleteProduct,
@@ -16,49 +16,56 @@ import {
 } from './handlers/update';
 import { handleInputErrors } from './modules/middleware';
 
-// Create a new router
-const router = Router();
+// Create routers for each group of routes
+const productRouter = Router();
+const updateRouter = Router();
+const updatePointsRouter = Router();
 
 // Define routes for products
-router.get('/product', getProducts);
-router.get('/product/:id', getOneProduct);
-router.put('/product/:id', body('name').isString(), handleInputErrors, updateProduct);
-router.post('/product', body('name').isString(), handleInputErrors, createProduct);
-router.delete('/product/:id', deleteProduct);
+productRouter.get('/', getProducts);
+productRouter.get('/:id', param('id').isUUID(), handleInputErrors, getOneProduct);
+productRouter.put('/:id', body('name').isString(), handleInputErrors, updateProduct);
+productRouter.post('/', body('name').isString(), handleInputErrors, createProduct);
+productRouter.delete('/:id', param('id').isUUID(), handleInputErrors, deleteProduct);
 
 // Define routes for updates
-router.get('/update', getUpdates);
-router.get('/update/:id', getOneUpdate);
-router.put(
-  '/update/:id',
+updateRouter.get('/', getUpdates);
+updateRouter.get('/:id', param('id').isUUID(), handleInputErrors, getOneUpdate);
+updateRouter.put(
+  '/:id',
   body('title').optional(),
   body('body').optional(),
   body('status').isIn(['IN_PROGRESS', 'SHIPPED', 'DEPRECATED']).optional(),
   body('version').optional(),
   updateUpdate
 );
-router.post(
-  '/update',
+updateRouter.post(
+  '/',
   body('title').exists().isString(),
   body('body').exists().isString(),
   body('productId').exists().isString(),
   createUpdate
 );
-router.delete('/update/:id', deleteUpdate);
+updateRouter.delete('/:id', param('id').isUUID(), handleInputErrors, deleteUpdate);
 
 // Define routes for update points
-router.get('/updatepoints', () => {});
-router.get('/updatepoints/:id', () => {});
-router.put(
-  '/updatepoints/:id',
+updatePointsRouter.get('/', () => {});
+updatePointsRouter.get('/:id', () => {});
+updatePointsRouter.put(
+  '/:id',
   body('name').isString(),
-  body('discription').isString(),
+  body('description').isString(),
   body('updateId').exists().isString(),
-
   () => {}
 );
-router.post('/updatepoints', () => {});
-router.delete('/updatepoints/:id', () => {});
+updatePointsRouter.post('/', () => {});
+updatePointsRouter.delete('/:id', () => {});
+
+// Use the routers
+const router = Router();
+router.use('/product', productRouter);
+router.use('/update', updateRouter);
+router.use('/updatepoints', updatePointsRouter);
 
 // Export the router
 export default router;
