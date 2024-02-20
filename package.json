@@ -6,6 +6,9 @@
     "dev": "nodemon src/index.ts",
     "test": "jest"
   },
+  "engines": {
+    "node": ">=18.17.1"
+  },
   "dependencies": {
     "@prisma/client": "^5.9.1",
     "bcrypt": "^5.1.1",
@@ -32,5 +35,6 @@
     "prisma": "^5.9.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
-  }
+  },
+  "packageManager": "pnpm@8.15.3+sha256.fc4a49bd609550a41e14d20efbce802a4b892aa4cac877322de2f0924f122991"
 }
