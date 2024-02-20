@@ -62,7 +62,7 @@ updatePointsRouter.post('/', () => {});
 updatePointsRouter.delete('/:id', () => {});
 
 // Use the routers
-const router = Router();
+const router: Router = Router();
 router.use('/product', productRouter);
 router.use('/update', updateRouter);
 router.use('/updatepoints', updatePointsRouter);

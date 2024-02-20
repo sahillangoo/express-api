@@ -16,7 +16,7 @@ if (!process.env.PORT) {
   process.exit(1);
 }
 
-const port = config.PORT;
+const port = config.PORT || 3000;
 
 app.listen(port, (err?: Error) => {
   if (err) {

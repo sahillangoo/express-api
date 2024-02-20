@@ -6,7 +6,7 @@ import { createNewUser, signin } from './handlers/user';
 import { protect } from './modules/auth';
 import router from './router';
 
-const app = express();
+const app: express.Application = express();
 
 // Use CORS middleware to enable CORS (Cross-Origin Resource Sharing)
 app.use(cors());
@@ -55,7 +55,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (req, res, next) => {
-  res.status(200).json({ mes: 'Hello World!' });
+  res.status(200).json({ message: 'Hello World!' });
   next();
 });
 
