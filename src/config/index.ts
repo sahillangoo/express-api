@@ -16,7 +16,7 @@ export default Object.assign(
   {
     stage,
     env: process.env.NODE_ENV,
-    port: process.env.PORT || 3001,
+    port: process.env.PORT,
     logging: true,
     secrets: {
       jwt: process.env.JWT_SECRET,
